@@ -409,6 +409,7 @@ class AllMoviesScreen extends StatelessWidget {
     );
   }
 }
+
 class MovieDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> movie;
 
@@ -442,13 +443,13 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     if (response.statusCode == 200) {
       setState(() {
         _movieDetails = jsonDecode(response.body);
-        _castAndCrew = _movieDetails['credits']['cast'] + _movieDetails['credits']['crew'];
+        _castAndCrew =
+            _movieDetails['credits']['cast'] + _movieDetails['credits']['crew'];
       });
     } else {
       throw Exception('Failed to load movie details');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -463,7 +464,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
             Container(
               height: 300,
               child: CachedNetworkImage(
-                imageUrl: 'https://image.tmdb.org/t/p/w500${widget.movie['backdrop_path']}',
+                imageUrl:
+                    'https://image.tmdb.org/t/p/w500${widget.movie['backdrop_path']}',
                 placeholder: (context, url) => CircularProgressIndicator(),
                 errorWidget: (context, url, error) => Icon(Icons.error),
               ),
@@ -485,9 +487,9 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                   SizedBox(height: 10),
                   _movieDetails.containsKey('genres')
                       ? Text(
-                    '${_movieDetails['genres'].map((genre) => genre['name']).join(', ')}',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  )
+                          '${_movieDetails['genres'].map((genre) => genre['name']).join(', ')}',
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        )
                       : SizedBox.shrink(),
                 ],
               ),
@@ -553,8 +555,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                       CircleAvatar(
                         backgroundImage: person['profile_path'] != null
                             ? NetworkImage(
-                          'https://image.tmdb.org/t/p/w185${person['profile_path']}',
-                        )
+                                'https://image.tmdb.org/t/p/w185${person['profile_path']}',
+                              )
                             : null,
                         radius: 35,
                       ),
@@ -577,18 +579,12 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 },
               ),
             ),
-
-
           ],
         ),
       ),
     );
   }
-
 }
-
-
-
 
 class MovieCard extends StatelessWidget {
   final Map<String, dynamic> movie;
