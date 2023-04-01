@@ -409,17 +409,52 @@ class AllMoviesScreen extends StatelessWidget {
     );
   }
 }
-
-class MovieDetailsScreen extends StatelessWidget {
+class MovieDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> movie;
 
   const MovieDetailsScreen({Key? key, required this.movie}) : super(key: key);
 
   @override
+  _MovieDetailsScreenState createState() => _MovieDetailsScreenState();
+}
+
+class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
+  Map<String, dynamic> _movieDetails = {};
+  List<dynamic> _castAndCrew = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMovieDetails();
+  }
+
+  void _fetchMovieDetails() async {
+    final response = await http.get(Uri.https(
+      'api.themoviedb.org',
+      '/3/movie/${widget.movie['id']}',
+      {
+        'api_key': '2e3a3937942a5214d0878f836907166a',
+        'language': 'en-US',
+        'append_to_response': 'credits',
+      },
+    ));
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _movieDetails = jsonDecode(response.body);
+        _castAndCrew = _movieDetails['credits']['cast'] + _movieDetails['credits']['crew'];
+      });
+    } else {
+      throw Exception('Failed to load movie details');
+    }
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(movie['title']),
+        title: Text(widget.movie['title']),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -428,8 +463,7 @@ class MovieDetailsScreen extends StatelessWidget {
             Container(
               height: 300,
               child: CachedNetworkImage(
-                imageUrl:
-                    'https://image.tmdb.org/t/p/w500${movie['backdrop_path']}',
+                imageUrl: 'https://image.tmdb.org/t/p/w500${widget.movie['backdrop_path']}',
                 placeholder: (context, url) => CircularProgressIndicator(),
                 errorWidget: (context, url, error) => Icon(Icons.error),
               ),
@@ -437,13 +471,25 @@ class MovieDetailsScreen extends StatelessWidget {
             SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Text(
-                movie['title'],
-                style: GoogleFonts.roboto(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.movie['title'],
+                    style: GoogleFonts.roboto(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  _movieDetails.containsKey('genres')
+                      ? Text(
+                    '${_movieDetails['genres'].map((genre) => genre['name']).join(', ')}',
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  )
+                      : SizedBox.shrink(),
+                ],
               ),
             ),
             SizedBox(height: 10),
@@ -454,7 +500,7 @@ class MovieDetailsScreen extends StatelessWidget {
                   Icon(Icons.star, color: Colors.amber, size: 18),
                   SizedBox(width: 5),
                   Text(
-                    movie['vote_average'].toString(),
+                    widget.movie['vote_average'].toString(),
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ],
@@ -466,25 +512,83 @@ class MovieDetailsScreen extends StatelessWidget {
               child: Text(
                 'Description:',
                 style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
             SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Text(
-                movie['overview'],
+                widget.movie['overview'],
                 style: TextStyle(fontSize: 18, color: Colors.white),
               ),
             ),
+            SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Text(
+                '\nCast and Crew:',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+            Container(
+              height: 120,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                scrollDirection: Axis.horizontal,
+                separatorBuilder: (context, index) => SizedBox(width: 10),
+                itemCount: _castAndCrew.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final person = _castAndCrew[index];
+                  return Column(
+                    children: [
+                      CircleAvatar(
+                        backgroundImage: person['profile_path'] != null
+                            ? NetworkImage(
+                          'https://image.tmdb.org/t/p/w185${person['profile_path']}',
+                        )
+                            : null,
+                        radius: 35,
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        person['name'],
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        person['character'] ?? person['job'],
+                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+
+
           ],
         ),
       ),
     );
   }
+
 }
+
+
+
 
 class MovieCard extends StatelessWidget {
   final Map<String, dynamic> movie;
