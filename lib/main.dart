@@ -844,7 +844,7 @@ class _TvShowDetailsScreenState extends State<TvShowDetailsScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Text(
-                'Cast:',
+                '\nCast and Crew:',
                 style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
