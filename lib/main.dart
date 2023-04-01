@@ -741,16 +741,46 @@ class AllTvShowsScreen extends StatelessWidget {
   }
 }
 
-class TvShowDetailsScreen extends StatelessWidget {
+class TvShowDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> show;
 
   const TvShowDetailsScreen({Key? key, required this.show}) : super(key: key);
 
   @override
+  _TvShowDetailsScreenState createState() => _TvShowDetailsScreenState();
+}
+
+class _TvShowDetailsScreenState extends State<TvShowDetailsScreen> {
+  List<dynamic> _cast = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCredits(widget.show['id']).then((cast) {
+      setState(() {
+        _cast = cast;
+      });
+    });
+  }
+
+  Future<List<dynamic>> fetchCredits(int showId) async {
+    final response = await http.get(Uri.parse(
+        'https://api.themoviedb.org/3/tv/$showId/credits?api_key=2e3a3937942a5214d0878f836907166a'));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      return data['cast'];
+    } else {
+      // Handle error
+      return [];
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(show['name']),
+        title: Text(widget.show['name']),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -760,7 +790,7 @@ class TvShowDetailsScreen extends StatelessWidget {
               height: 300,
               child: CachedNetworkImage(
                 imageUrl:
-                    'https://image.tmdb.org/t/p/w500${show['backdrop_path']}',
+                'https://image.tmdb.org/t/p/w500${widget.show['backdrop_path']}',
                 placeholder: (context, url) => CircularProgressIndicator(),
                 errorWidget: (context, url, error) => Icon(Icons.error),
               ),
@@ -769,7 +799,7 @@ class TvShowDetailsScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Text(
-                show['name'],
+                widget.show['name'],
                 style: GoogleFonts.roboto(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -785,7 +815,7 @@ class TvShowDetailsScreen extends StatelessWidget {
                   Icon(Icons.star, color: Colors.amber, size: 18),
                   SizedBox(width: 5),
                   Text(
-                    show['vote_average'].toString(),
+                    widget.show['vote_average'].toString(),
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ],
@@ -806,8 +836,57 @@ class TvShowDetailsScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Text(
-                show['overview'],
+                widget.show['overview'],
                 style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
+            ),
+            SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Text(
+                'Cast:',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
+            ),
+            SizedBox(height: 10),
+            Container(
+              height: 120,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                scrollDirection: Axis.horizontal,
+                separatorBuilder: (context, index) => SizedBox(width: 10),
+                itemCount: _cast.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Column(
+                    children: [
+                      CircleAvatar(
+                        backgroundImage: _cast[index]['profile_path'] != null
+                            ? NetworkImage(
+                          'https://image.tmdb.org/t/p/w185${_cast[index]['profile_path']}',
+                        )
+                            : null,
+                        radius: 35,
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        _cast[index]['name'],
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        _cast[index]['character'],
+                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ],
@@ -815,4 +894,5 @@ class TvShowDetailsScreen extends StatelessWidget {
       ),
     );
   }
+
 }
