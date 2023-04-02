@@ -72,240 +72,260 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Discover Movies',
-                    style: GoogleFonts.roboto(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AllMoviesScreen(movies: movies),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      'See More',
-                      style: GoogleFonts.roboto(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.black),
-                    ),
-                  ),
-                ],
-              ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.home),
+              onPressed: () {
+                // Code to execute when the home button is pressed
+              },
             ),
-            SizedBox(
-              height: 220,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: movies.length > 5 ? 5 : movies.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              MovieDetailsScreen(movie: movies[index]),
-                        ),
-                      );
-                    },
-                    child: SizedBox(
-                      width: 120,
-                      child: Card(
-                        color: Colors.black,
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: CachedNetworkImage(
-                                imageUrl:
-                                    'https://image.tmdb.org/t/p/w500${movies[index]['poster_path']}',
-                                width: 200,
-                                // adjust the width of the image
-                                height: 300,
-                                // adjust the height of the image
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) =>
-                                    CircularProgressIndicator(),
-                                errorWidget: (context, url, error) =>
-                                    Icon(Icons.error),
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            SizedBox(
-                              height: 40,
-                              // adjust the height of the title container
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Container(
-                                    constraints: BoxConstraints(
-                                      maxWidth: 120 -
-                                          2 * 8.0 -
-                                          2 * 1.0, // 120 is the width of the picture
-                                    ),
-                                    child: Text(
-                                      movies[index]['title'],
-                                      textAlign: TextAlign.center,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Discover TV Shows',
-                    style: GoogleFonts.roboto(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AllTvShowsScreen(shows: shows),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      'See More',
-                      style: GoogleFonts.roboto(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.black),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 220,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: shows.length > 5 ? 5 : shows.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              TvShowDetailsScreen(show: shows[index]),
-                        ),
-                      );
-                    },
-                    child: SizedBox(
-                      width: 120,
-                      child: Card(
-                        color: Colors.black,
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: CachedNetworkImage(
-                                imageUrl:
-                                    'https://image.tmdb.org/t/p/w500${shows[index]['poster_path']}',
-                                width: 200,
-                                // adjust the width of the image
-                                height: 300,
-                                // adjust the height of the image
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) =>
-                                    CircularProgressIndicator(),
-                                errorWidget: (context, url, error) =>
-                                    Icon(Icons.error),
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            SizedBox(
-                              height: 40,
-                              // adjust the height of the title container
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Container(
-                                    constraints: BoxConstraints(
-                                      maxWidth: 120 -
-                                          2 * 8.0 -
-                                          2 * 1.0, // 120 is the width of the picture
-                                    ),
-                                    child: Text(
-                                      shows[index]['name'],
-                                      textAlign: TextAlign.center,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () {
+                // Code to execute when the settings button is pressed
+              },
             ),
           ],
         ),
       ),
+    body: SingleChildScrollView(
+    child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+    Padding(
+    padding: const EdgeInsets.all(10.0),
+    child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+    Text(
+    'Discover Movies',
+    style: GoogleFonts.roboto(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+    ),
+    ),
+    ElevatedButton(
+    onPressed: () {
+    Navigator.push(
+    context,
+    MaterialPageRoute(
+    builder: (context) => AllMoviesScreen(movies: movies),
+    ),
+    );
+    },
+    child: Text(
+    'See More',
+    style: GoogleFonts.roboto(
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+    ),
+    ),
+    style: ButtonStyle(
+    backgroundColor:
+    MaterialStateProperty.all<Color>(Colors.black),
+    ),
+    ),
+    ],
+    ),
+    ),
+    SizedBox(
+    height: 220,
+    child: ListView.builder(
+    scrollDirection: Axis.horizontal,
+    itemCount: movies.length > 5 ? 5 : movies.length,
+    itemBuilder: (BuildContext context, int index) {
+    return InkWell(
+    onTap: () {
+    Navigator.push(
+    context,
+    MaterialPageRoute(
+    builder: (context) =>
+    MovieDetailsScreen(movie: movies[index]),
+    ),
+    );
+    },
+    child: SizedBox(
+    width: 120,
+    child: Card(
+    color: Colors.black,
+    child: Column(
+    children: [
+    Expanded(
+    child: CachedNetworkImage(
+    imageUrl:
+    'https://image.tmdb.org/t/p/w500${movies[index]['poster_path']}',
+    width: 200,
+    // adjust the width of the image
+    height: 300,
+    // adjust the height of the image
+    fit: BoxFit.cover,
+    placeholder: (context, url) =>
+    CircularProgressIndicator(),
+    errorWidget: (context, url, error) =>
+    Icon(Icons.error),
+    ),
+    ),
+    SizedBox(height: 5),
+    SizedBox(
+    height: 40,
+// adjust the height of the title container
+    child: Padding(
+    padding:
+    const EdgeInsets.symmetric(horizontal: 8.0),
+    child: SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
+    child: Container(
+    constraints: BoxConstraints(
+    maxWidth: 120 -
+    2 * 8.0 -
+    2 * 1.0, // 120 is the width of the picture
+    ),
+    child: Text(
+    movies[index]['title'],
+    textAlign: TextAlign.center,
+    maxLines: 1,
+    overflow: TextOverflow.ellipsis,
+    style: TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+    ),
+    ),
+    ),
+    ),
+    ),
+    ),
+    ],
+    ),
+    ),
+    ),
+    );
+    },
+    ),
+    ),
+    Padding(
+    padding: const EdgeInsets.all(10.0),
+    child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+    Text(
+    'Discover TV Shows',
+    style: GoogleFonts.roboto(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+    ),
+    ),
+    ElevatedButton(
+    onPressed: () {
+    Navigator.push(
+    context,
+    MaterialPageRoute(
+    builder: (context) => AllTvShowsScreen(shows: shows),
+    ),
+    );
+    },
+    child: Text(
+    'See More',
+    style: GoogleFonts.roboto(
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+    ),
+    ),
+    style: ButtonStyle(
+    backgroundColor:
+    MaterialStateProperty.all<Color>(Colors.black),
+    ),
+    ),
+    ],
+    ),
+    ),
+    SizedBox(
+    height: 220,
+    child: ListView.builder(
+    scrollDirection: Axis.horizontal,
+    itemCount: shows.length > 5 ? 5 : shows.length,
+    itemBuilder: (BuildContext context, int index) {
+    return InkWell(
+    onTap: () {
+    Navigator.push(
+    context,
+    MaterialPageRoute(
+    builder: (context) =>
+    TvShowDetailsScreen(show: shows[index]),
+    ),
+    );
+    },
+    child: SizedBox(
+    width: 120,
+    child: Card(
+    color: Colors.black,
+    child: Column(
+    children: [
+    Expanded(
+    child: CachedNetworkImage(
+    imageUrl:
+    'https://image.tmdb.org/t/p/w500${shows[index]['poster_path']}',
+    width: 200,
+// adjust the width of the image
+    height: 300,
+// adjust the height of the image
+    fit: BoxFit.cover,
+    placeholder: (context, url) =>
+    CircularProgressIndicator(),
+    errorWidget: (context, url, error) =>
+    Icon(Icons.error),
+    ),
+    ),
+    SizedBox(height: 5),
+    SizedBox(
+    height: 40,
+// adjust the height of the title container
+    child: Padding(
+    padding:
+    const EdgeInsets.symmetric(horizontal: 8.0),
+    child: SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
+    child: Container(
+    constraints: BoxConstraints(
+    maxWidth: 120 -
+    2 * 8.0 -
+    2 * 1.0, // 120 is the width of the picture
+    ),
+    child: Text(
+    shows[index]['name'],
+    textAlign: TextAlign.center,
+    maxLines: 1,
+    overflow: TextOverflow.ellipsis,
+    style: TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+      color: Colors.white,
+    ),
+    ),
+    ),
+    ),
+    ),
+    ),
+    ],
+    ),
+    ),
+    ),
+    );
+    },
+    ),
+    ),
+    ],
+    ),
+    ),
     );
   }
 }
+
 
 class AllMoviesScreen extends StatelessWidget {
   final List<Map<String, dynamic>> movies;
@@ -316,7 +336,25 @@ class AllMoviesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('All Movies'),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.home),
+              onPressed: () {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () {
+                // Code to execute when the settings button is pressed
+              },
+            ),
+          ],
+        ),
       ),
       body: ListView.builder(
         itemCount: movies.length,
@@ -455,7 +493,25 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.movie['title']),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.home),
+              onPressed: () {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () {
+                // Code to execute when the settings button is pressed
+              },
+            ),
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -647,7 +703,25 @@ class AllTvShowsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('All Shows'),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.home),
+              onPressed: () {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () {
+                // Code to execute when the settings button is pressed
+              },
+            ),
+          ],
+        ),
       ),
       body: ListView.builder(
         itemCount: shows.length,
@@ -780,7 +854,25 @@ class _TvShowDetailsScreenState extends State<TvShowDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.show['name']),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.home),
+              onPressed: () {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () {
+                // Code to execute when the settings button is pressed
+              },
+            ),
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -896,3 +988,6 @@ class _TvShowDetailsScreenState extends State<TvShowDetailsScreen> {
   }
 
 }
+
+
+
