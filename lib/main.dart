@@ -8,23 +8,26 @@ import 'package:flutter_udid/flutter_udid.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+// Define the main function, which is the entry point of the application
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MyApp());
 }
-
+// Define the MyApp widget, which is a stateless widget that builds the app's UI
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Movies&More',
+      // Set the app's dark theme
       theme: ThemeData.dark(),
+      // Set the app's home page to an instance of the MyHomePage widget
       home: MyHomePage(title: 'Movies&More'),
     );
   }
 }
-
+// Define the MyHomePage widget, which is a stateful widget that defines the layout of the home page
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key? key, required this.title}) : super(key: key);
 
@@ -33,17 +36,19 @@ class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
-
+// Define the _MyHomePageState class, which extends the State class and defines the state of the MyHomePage widget
 class _MyHomePageState extends State<MyHomePage> {
+  // Define the instance variables that will hold the data fetched from the API
   List<Map<String, dynamic>> movies = [];
   List<Map<String, dynamic>> shows = [];
   Map<String, dynamic> show = {}; // define a variable named show
-
+// Define a method that fetches the list of movies from the API
   Future<void> fetchMovies() async {
     final response = await http.get(Uri.parse(
         'https://api.themoviedb.org/3/discover/movie?api_key=2e3a3937942a5214d0878f836907166a'));
 
     if (response.statusCode == 200) {
+      // Set the state of the widget with the list of movies returned from the API
       setState(() {
         final Map<String, dynamic> data = json.decode(response.body);
         movies = List<Map<String, dynamic>>.from(data['results']);
@@ -58,6 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
         'https://api.themoviedb.org/3/discover/tv?api_key=2e3a3937942a5214d0878f836907166a'));
 
     if (response.statusCode == 200) {
+      // Set the state of the widget with the list of TV shows returned from the API
       setState(() {
         final Map<String, dynamic> data = json.decode(response.body);
         shows = List<Map<String, dynamic>>.from(data['results']);
@@ -66,20 +72,23 @@ class _MyHomePageState extends State<MyHomePage> {
       // Handle error
     }
   }
-
+  // This method is called when the state object is first created
+  // It calls two methods to fetch movies and TV shows from an API
   @override
   void initState() {
     super.initState();
     fetchMovies();
     fetchTvShows();
   }
-
+  // This method builds the UI for the widget
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // The app bar displays the title of the widget
       appBar: AppBar(
         title: Text(widget.title),
       ),
+      // The bottom navigation bar displays a row of icons that the user can interact with
       bottomNavigationBar: BottomAppBar(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -90,6 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 // Code to execute when the home button is pressed
               },
             ),
+            //Watch list:
             IconButton(
               icon: Icon(Icons.list),
               onPressed: () {
@@ -101,10 +111,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
             ),
+            //Already watched:
             IconButton(
               icon: Icon(Icons.checklist),
               onPressed: () {},
             ),
+            //Search:
             IconButton(
               icon: Icon(Icons.search),
               onPressed: () {
@@ -119,6 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
+      // The body of the widget displays a column of movies
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,6 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       color: Colors.white,
                     ),
                   ),
+                  // The "See More" button navigates to a screen that displays all movies
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(
@@ -160,10 +174,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
             ),
+            // The second element in the column is a horizontal list of movie cards
             SizedBox(
               height: 220,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
+                // Set the maximum number of cards to 5 if there are more movies
                 itemCount: movies.length > 5 ? 5 : movies.length,
                 itemBuilder: (BuildContext context, int index) {
                   return InkWell(
@@ -182,6 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: Colors.black,
                         child: Column(
                           children: [
+                            // Display the movie poster image
                             Expanded(
                               child: CachedNetworkImage(
                                 imageUrl:
@@ -198,9 +215,10 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                             SizedBox(height: 5),
+                            // Display the movie title
                             SizedBox(
                               height: 40,
-// adjust the height of the title container
+                              // Display the "Discover TV Shows" text and "See More" button
                               child: Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 8.0),
@@ -275,7 +293,9 @@ class _MyHomePageState extends State<MyHomePage> {
             SizedBox(
               height: 220,
               child: ListView.builder(
+                // Displays a scrollable list of widgets.
                 scrollDirection: Axis.horizontal,
+                // Shows only five shows
                 itemCount: shows.length > 5 ? 5 : shows.length,
                 itemBuilder: (BuildContext context, int index) {
                   return InkWell(
@@ -295,13 +315,12 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Column(
                           children: [
                             Expanded(
+                              //Load the poster image and cache it
                               child: CachedNetworkImage(
                                 imageUrl:
                                     'https://image.tmdb.org/t/p/w500${shows[index]['poster_path']}',
                                 width: 200,
-// adjust the width of the image
                                 height: 300,
-// adjust the height of the image
                                 fit: BoxFit.cover,
                                 placeholder: (context, url) =>
                                     CircularProgressIndicator(),
@@ -355,8 +374,9 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class AllMoviesScreen extends StatelessWidget {
+  // Declare a list of movie maps that will be passed to the constructor
   final List<Map<String, dynamic>> movies;
-
+  // Create a constructor that takes a Key object and the movies list as arguments
   const AllMoviesScreen({Key? key, required this.movies}) : super(key: key);
 
   @override
@@ -365,16 +385,19 @@ class AllMoviesScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Discover Movies'),
       ),
+      // Set the BottomAppBar widget to display a row of icons for navigating to different screens
       bottomNavigationBar: BottomAppBar(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
+            // Add an IconButton that will pop the screen stack back to the home screen
             IconButton(
               icon: Icon(Icons.home),
               onPressed: () {
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
             ),
+            // IconButton that will navigate to the WatchlistScreen
             IconButton(
               icon: Icon(Icons.list),
               onPressed: () {
@@ -392,6 +415,7 @@ class AllMoviesScreen extends StatelessWidget {
                 // Code to execute when the checklist button is pressed
               },
             ),
+            // IconButton that will navigate to the SearchScreen
             IconButton(
               icon: Icon(Icons.search),
               onPressed: () {
@@ -406,9 +430,11 @@ class AllMoviesScreen extends StatelessWidget {
           ],
         ),
       ),
+      // Set the body of the screen to a ListView widget that will display the movies
       body: ListView.builder(
         itemCount: movies.length,
         itemBuilder: (context, index) {
+          // Get the current movie map from the movies list using the index
           final movie = movies[index];
           return GestureDetector(
             onTap: () {
@@ -424,11 +450,13 @@ class AllMoviesScreen extends StatelessWidget {
                 print('Error navigating to movie details screen: $e');
               }
             },
+            // Display the movie information
             child: Container(
               color: Colors.black,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Display the movie poster and description in a row
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
@@ -508,15 +536,17 @@ class MovieDetailsScreen extends StatefulWidget {
 }
 
 class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
+  // Map that stores details of a movie.
   Map<String, dynamic> _movieDetails = {};
   List<dynamic> _castAndCrew = [];
 
   @override
   void initState() {
     super.initState();
+    // Calls the _fetchMovieDetails() method when the state is initialized.
     _fetchMovieDetails();
   }
-
+// Fetches the details of a movie from the API.
   void _fetchMovieDetails() async {
     final response = await http.get(Uri.https(
       'api.themoviedb.org',
@@ -527,7 +557,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         'append_to_response': 'credits',
       },
     ));
-
+// If the API call is successful, the movie details
+// are stored in _movieDetails and the cast and crew are stored in _castAndCrew.
     if (response.statusCode == 200) {
       setState(() {
         _movieDetails = jsonDecode(response.body);
@@ -592,6 +623,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
           children: [
             Container(
               height: 300,
+              // Displays the backdrop image of the movie.
               child: CachedNetworkImage(
                 imageUrl:
                     'https://image.tmdb.org/t/p/w500${widget.movie['backdrop_path']}',
@@ -690,6 +722,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     children: [
                       GestureDetector(
                         onTap: () {
+                          // Navigates to the Person Details Screen when a person is tapped.
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -699,6 +732,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           );
                         },
                         child: Column(
+                          // Displays the profile image of the person.
                           children: [
                             CircleAvatar(
                               backgroundImage: person['profile_path'] != null
@@ -709,6 +743,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                               radius: 35,
                             ),
                             SizedBox(height: 5),
+                            // Displays the name of the person.
                             Text(
                               person['name'],
                               style:
@@ -716,6 +751,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                               textAlign: TextAlign.center,
                               maxLines: 2,
                             ),
+                            // Displays the role of the person.
                             SizedBox(height: 5),
                             Text(
                               person['character'] ?? person['job'],
@@ -739,6 +775,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   }
 }
 
+// Movie card that displays the poster image and title of a movie
 class MovieCard extends StatelessWidget {
   final Map<String, dynamic> movie;
 
@@ -747,6 +784,7 @@ class MovieCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      // Navigates to the Movie Details Screen when the card is tapped.
       onTap: () {
         Navigator.push(
           context,
@@ -762,6 +800,7 @@ class MovieCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Displays the poster image of the movie.
               Expanded(
                 child: CachedNetworkImage(
                   imageUrl:
@@ -774,6 +813,7 @@ class MovieCard extends StatelessWidget {
               SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
+                // Displays the title of the movie.
                 child: Text(
                   movie['title'],
                   style: GoogleFonts.roboto(
@@ -790,7 +830,7 @@ class MovieCard extends StatelessWidget {
     );
   }
 }
-
+// Screen that displays a list of TV shows with their names, posters, and descriptions.
 class AllTvShowsScreen extends StatelessWidget {
   final List<Map<String, dynamic>> shows;
 
@@ -866,6 +906,7 @@ class AllTvShowsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Displays the name of the TV show.
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
@@ -881,6 +922,7 @@ class AllTvShowsScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
                       children: [
+                        // Displays the poster image of the TV show.
                         Expanded(
                           flex: 1,
                           child: CachedNetworkImage(
@@ -894,6 +936,7 @@ class AllTvShowsScreen extends StatelessWidget {
                           ),
                         ),
                         SizedBox(width: 10),
+                        // Displays the description of the TV show.
                         Expanded(
                           flex: 2,
                           child: Column(
@@ -950,6 +993,7 @@ class _TvShowDetailsScreenState extends State<TvShowDetailsScreen> {
   @override
   void initState() {
     super.initState();
+    //Fetch the cast and crew of the tv show
     fetchCredits(widget.show['id']).then((cast) {
       setState(() {
         _cast = cast;
@@ -958,6 +1002,7 @@ class _TvShowDetailsScreenState extends State<TvShowDetailsScreen> {
   }
 
   Future<List<dynamic>> fetchCredits(int showId) async {
+    //request for credits:
     final response = await http.get(Uri.parse(
         'https://api.themoviedb.org/3/tv/$showId/credits?api_key=2e3a3937942a5214d0878f836907166a'));
 
@@ -1020,6 +1065,7 @@ class _TvShowDetailsScreenState extends State<TvShowDetailsScreen> {
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          //show the picture:
           children: [
             Container(
               height: 300,
@@ -1031,6 +1077,7 @@ class _TvShowDetailsScreenState extends State<TvShowDetailsScreen> {
               ),
             ),
             SizedBox(height: 10),
+            //show the tv show  name
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Text(
@@ -1043,6 +1090,7 @@ class _TvShowDetailsScreenState extends State<TvShowDetailsScreen> {
               ),
             ),
             SizedBox(height: 10),
+            //show rating
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Row(
@@ -1057,6 +1105,7 @@ class _TvShowDetailsScreenState extends State<TvShowDetailsScreen> {
               ),
             ),
             SizedBox(height: 10),
+            //show description
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Text(
@@ -1107,6 +1156,7 @@ class _TvShowDetailsScreenState extends State<TvShowDetailsScreen> {
                         ),
                       );
                     },
+                    //show the actor picture and details:
                     child: Column(
                       children: [
                         CircleAvatar(
@@ -1154,6 +1204,7 @@ class _SearchScreenState extends State<SearchScreen> {
   String? _sortBy = 'Relevance';
 
   Future<void> fetchResults(String query) async {
+    //fetch search results
     final response = await http.get(Uri.parse(
         'https://api.themoviedb.org/3/search/multi?api_key=2e3a3937942a5214d0878f836907166a&query=$query'));
 
@@ -1167,7 +1218,7 @@ class _SearchScreenState extends State<SearchScreen> {
       // Handle error
     }
   }
-
+  //function that controls sorting
   void sortResults(String? sortBy) {
     switch (sortBy) {
       case 'Title (A-Z)':
@@ -1214,6 +1265,7 @@ class _SearchScreenState extends State<SearchScreen> {
               showMenu<String>(
                 context: context,
                 position: RelativeRect.fromLTRB(1000.0, 50.0, 0.0, 0.0),
+                //sorting options:
                 items: <PopupMenuEntry<String>>[
                   PopupMenuItem<String>(
                     value: 'Relevance',
