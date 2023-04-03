@@ -54,6 +54,7 @@ class DefaultFirebaseOptions {
     appId: '1:911583631320:android:ade1b4bd3c41e6c9c484ad',
     messagingSenderId: '911583631320',
     projectId: 'assignment-co2509',
+    databaseURL: 'https://assignment-co2509-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'assignment-co2509.appspot.com',
   );
 
@@ -62,6 +63,7 @@ class DefaultFirebaseOptions {
     appId: '1:911583631320:ios:5422325cf88b1767c484ad',
     messagingSenderId: '911583631320',
     projectId: 'assignment-co2509',
+    databaseURL: 'https://assignment-co2509-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'assignment-co2509.appspot.com',
     iosClientId: '911583631320-3kh9rf6sv8s1cuq8vvm3hlh0g0fj5lu3.apps.googleusercontent.com',
     iosBundleId: 'com.example.assignment',

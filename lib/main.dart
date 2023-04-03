@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_udid/flutter_udid.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+
+
+
 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
@@ -1503,82 +1506,115 @@ class _PersonDetailsScreenState extends State<PersonDetailsScreen> {
   }
 }
 
-
 class WatchlistScreen extends StatefulWidget {
   @override
   _WatchlistScreenState createState() => _WatchlistScreenState();
 }
 
 class _WatchlistScreenState extends State<WatchlistScreen> {
-  List<dynamic> _watchlist = [];
+  String _deviceIdentifier = '';
+  List<Map<String, dynamic>> _watchlist = [];
+  DatabaseReference? _watchlistRef = FirebaseDatabase.instance.ref();
 
   @override
   void initState() {
     super.initState();
-    _initWatchlist();
+    _initDeviceIdentifier();
+    initPlatformState();
+
+    _watchlist = []; // Initialize _watchlist here
+    _readWatchlist();
+  }
+  //this does not work as expected:
+  Future<void> _readWatchlist() async {
+    print(_watchlistRef?.path);
+    DatabaseEvent? event = await _watchlistRef?.once();
+    print(event?.snapshot.value);
   }
 
-  Future<void> _initWatchlist() async {
-    // TODO: Load the user's watchlist from your data storage
+
+
+  String _udid = 'Unknown';
+
+  Future<void> initPlatformState() async {
+    String udid;
+    try {
+      udid = await FlutterUdid.udid;
+      print(udid);
+    } on PlatformException {
+      udid = 'Failed to get UDID.';
+      print(udid);
+    }
+
+    if (!mounted) return;
 
     setState(() {
-      // Assign the user's watchlist to the _watchlist list
+      _udid = udid;
+    });
+  }
+
+  Future<void> _initDeviceIdentifier() async {
+    final deviceIdentifier = await FlutterUdid.udid;
+    setState(() {
+      _deviceIdentifier = deviceIdentifier;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+        appBar: AppBar(
         title: Text('Watchlist'),
+    ),
+    body: _watchlist.isNotEmpty
+    ? ListView.builder(
+    itemCount: _watchlist.length,
+    itemBuilder: (BuildContext context, int index) {
+    final media = _watchlist[index];
+    return ListTile(
+    leading: Container(
+    width: 50,
+      height: 75,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: CachedNetworkImageProvider(
+            media['poster_path'] != null
+                ? 'https://image.tmdb.org/t/p/w500${media['poster_path']}'
+                : 'https://via.placeholder.com/150x225?text=No+Poster',
+          ),
+          fit: BoxFit.cover,
+        ),
       ),
-      body: _watchlist.isNotEmpty
-          ? ListView.builder(
-        itemCount: _watchlist.length,
-        itemBuilder: (BuildContext context, int index) {
-          final media = _watchlist[index];
-          return ListTile(
-            leading: Container(
-              width: 50,
-              height: 75,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: CachedNetworkImageProvider(
-                    media['poster_path'] != null
-                        ? 'https://image.tmdb.org/t/p/w500${media['poster_path']}'
-                        : 'https://via.placeholder.com/150x225?text=No+Poster',
-                  ),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            title: Text(
-              media['title'] ?? media['name'] ?? 'No title available',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            subtitle: Text(
-              media['release_date'] ?? media['first_air_date'] ?? 'No date available',
-            ),
-            trailing: IconButton(
-              icon: Icon(Icons.delete),
-              onPressed: () {
-                // TODO: Remove the selected media from the user's watchlist
-                setState(() {
-                  _watchlist.removeAt(index);
-                });
-              },
-            ),
-            onTap: () {
-              // TODO: Navigate to the details screen for the selected media
-            },
-          );
+    ),
+      title: Text(
+        media['title'] ?? media['name'] ?? 'No title available',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Text(
+        media['release_date'] ?? media['first_air_date'] ?? 'No date available',
+      ),
+      trailing: IconButton(
+        icon: Icon(Icons.delete),
+        onPressed: () {
+// TODO: Remove the selected media from the device's watchlist
         },
-      )
-          : Center(
-        child: Text('No movies or TV shows in your watchlist.'),
+      ),
+      onTap: () {
+// TODO: Navigate to the details screen for the selected media
+      },
+    );
+    },
+    )
+        : Center(
+      child: Text('No movies or TV shows in your watchlist.'),
+    ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+// TODO: Implement media search and add functionality
+        },
       ),
     );
   }
 }
-
