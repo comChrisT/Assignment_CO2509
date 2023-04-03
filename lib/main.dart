@@ -3,8 +3,17 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() => runApp(MyApp());
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -91,7 +100,12 @@ class _MyHomePageState extends State<MyHomePage> {
             IconButton(
               icon: Icon(Icons.checklist),
               onPressed: () {
-                // Code to execute when the checklist button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WatchlistScreen(),
+                  ),
+                );
               },
             ),
             IconButton(
@@ -1488,3 +1502,83 @@ class _PersonDetailsScreenState extends State<PersonDetailsScreen> {
     );
   }
 }
+
+
+class WatchlistScreen extends StatefulWidget {
+  @override
+  _WatchlistScreenState createState() => _WatchlistScreenState();
+}
+
+class _WatchlistScreenState extends State<WatchlistScreen> {
+  List<dynamic> _watchlist = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _initWatchlist();
+  }
+
+  Future<void> _initWatchlist() async {
+    // TODO: Load the user's watchlist from your data storage
+
+    setState(() {
+      // Assign the user's watchlist to the _watchlist list
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Watchlist'),
+      ),
+      body: _watchlist.isNotEmpty
+          ? ListView.builder(
+        itemCount: _watchlist.length,
+        itemBuilder: (BuildContext context, int index) {
+          final media = _watchlist[index];
+          return ListTile(
+            leading: Container(
+              width: 50,
+              height: 75,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: CachedNetworkImageProvider(
+                    media['poster_path'] != null
+                        ? 'https://image.tmdb.org/t/p/w500${media['poster_path']}'
+                        : 'https://via.placeholder.com/150x225?text=No+Poster',
+                  ),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            title: Text(
+              media['title'] ?? media['name'] ?? 'No title available',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Text(
+              media['release_date'] ?? media['first_air_date'] ?? 'No date available',
+            ),
+            trailing: IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: () {
+                // TODO: Remove the selected media from the user's watchlist
+                setState(() {
+                  _watchlist.removeAt(index);
+                });
+              },
+            ),
+            onTap: () {
+              // TODO: Navigate to the details screen for the selected media
+            },
+          );
+        },
+      )
+          : Center(
+        child: Text('No movies or TV shows in your watchlist.'),
+      ),
+    );
+  }
+}
+
