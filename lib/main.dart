@@ -8,10 +8,6 @@ import 'package:flutter_udid/flutter_udid.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-
-
-
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -97,12 +93,6 @@ class _MyHomePageState extends State<MyHomePage> {
             IconButton(
               icon: Icon(Icons.list),
               onPressed: () {
-                // Code to execute when the list button is pressed
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.checklist),
-              onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -110,6 +100,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 );
               },
+            ),
+            IconButton(
+              icon: Icon(Icons.checklist),
+              onPressed: () {},
             ),
             IconButton(
               icon: Icon(Icons.search),
@@ -384,7 +378,12 @@ class AllMoviesScreen extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.list),
               onPressed: () {
-                // Code to execute when the list button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WatchlistScreen(),
+                  ),
+                );
               },
             ),
             IconButton(
@@ -559,7 +558,12 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
             IconButton(
               icon: Icon(Icons.list),
               onPressed: () {
-                // Code to execute when the list button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WatchlistScreen(),
+                  ),
+                );
               },
             ),
             IconButton(
@@ -609,7 +613,6 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                       color: Colors.white,
                     ),
                   ),
-
                   SizedBox(height: 10),
                   if (_movieDetails.containsKey('genres') &&
                       _movieDetails['genres'] != null &&
@@ -620,7 +623,6 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     ),
                 ],
               ),
-
             ),
             SizedBox(height: 10),
             Padding(
@@ -638,7 +640,6 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 ],
               ),
             ),
-
             SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -655,7 +656,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Visibility(
-                visible: widget.movie['overview'] != null && widget.movie['overview'].isNotEmpty,
+                visible: widget.movie['overview'] != null &&
+                    widget.movie['overview'].isNotEmpty,
                 child: Text(
                   widget.movie['overview'],
                   style: TextStyle(fontSize: 18, color: Colors.white),
@@ -813,7 +815,12 @@ class AllTvShowsScreen extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.list),
               onPressed: () {
-                // Code to execute when the list button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WatchlistScreen(),
+                  ),
+                );
               },
             ),
             IconButton(
@@ -982,7 +989,12 @@ class _TvShowDetailsScreenState extends State<TvShowDetailsScreen> {
             IconButton(
               icon: Icon(Icons.list),
               onPressed: () {
-                // Code to execute when the list button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WatchlistScreen(),
+                  ),
+                );
               },
             ),
             IconButton(
@@ -1136,10 +1148,10 @@ class SearchScreen extends StatefulWidget {
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
-
 class _SearchScreenState extends State<SearchScreen> {
   String query = '';
   List<Map<String, dynamic>> results = [];
+  String? _sortBy = 'Relevance';
 
   Future<void> fetchResults(String query) async {
     final response = await http.get(Uri.parse(
@@ -1149,9 +1161,30 @@ class _SearchScreenState extends State<SearchScreen> {
       setState(() {
         final Map<String, dynamic> data = json.decode(response.body);
         results = List<Map<String, dynamic>>.from(data['results']);
+        sortResults(_sortBy);
       });
     } else {
       // Handle error
+    }
+  }
+
+  void sortResults(String? sortBy) {
+    switch (sortBy) {
+      case 'Title (A-Z)':
+        results.sort((a, b) => (a['title'] ?? '').compareTo(b['title'] ?? ''));
+        break;
+      case 'Title (Z-A)':
+        results.sort((a, b) => (b['title'] ?? '').compareTo(a['title'] ?? ''));
+        break;
+      case 'Release Date (Newest First)':
+        results.sort((a, b) => (b['release_date'] ?? '').compareTo(a['release_date'] ?? ''));
+        break;
+      case 'Release Date (Oldest First)':
+        results.sort((a, b) => (a['release_date'] ?? '').compareTo(b['release_date'] ?? ''));
+        break;
+      default:
+      // Relevance
+        break;
     }
   }
 
@@ -1164,87 +1197,109 @@ class _SearchScreenState extends State<SearchScreen> {
             hintText: 'Search Movies, TV shows, or People',
             hintStyle: TextStyle(color: Colors.white),
           ),
-          onChanged: (value) {
+          onChanged: (String? value) {
             setState(() {
-              query = value;
+              query = value ?? '';
             });
           },
-          onSubmitted: (value) {
+          onSubmitted: (String? value) {
             fetchResults(query);
           },
           style: TextStyle(color: Colors.white),
         ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.sort),
+            onPressed: () {
+              showMenu<String>(
+                context: context,
+                position: RelativeRect.fromLTRB(1000.0, 50.0, 0.0, 0.0),
+                items: <PopupMenuEntry<String>>[
+                  PopupMenuItem<String>(
+                    value: 'Relevance',
+                    child: Text('Relevance'),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'Title (A-Z)',
+                    child: Text('Title (A-Z)'),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'Title (Z-A)',
+                    child: Text('Title (Z-A)'),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'Release Date (Newest First)',
+                    child: Text('Release Date (Newest First)'),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'Release Date (Oldest First)',
+                    child: Text('Release Date (Oldest First)'),
+                  ),
+                ],
+              ).then((value) {
+                if (value != null) {
+                  setState(() {
+                    _sortBy = value;
+                    if (_sortBy == 'Relevance') {
+                      // Always sort by relevance
+                      results.sort((a, b) => (b['vote_average'] ?? 0.0).compareTo(a['vote_average'] ?? 0.0));
+                    } else {
+                      // Sort by the selected option
+                      sortResults(_sortBy);
+                    }
+                  });
+                }
+              });
+            },
+          ),
+
+        ],
       ),
       body: results.isEmpty
           ? Center(
-              child: Text('Search for movies, TV shows, or people'),
-            )
+        child: Text('Search for movies, TV shows, or people'),
+      )
           : ListView.builder(
-              itemCount: results.length,
-              itemBuilder: (BuildContext context, int index) {
-                final result = results[index];
-                String title = '';
-                String subtitle = '';
+        itemCount: results.length,
+        itemBuilder: (BuildContext context, int index) {
+          final result = results[index];
+          String title = '';
+          String subtitle = '';
+          switch (result['media_type']) {
+            case 'movie':
+              title = result['title'] ?? '';
+              subtitle = result['release_date'] ?? '';
+              break;
+            case 'tv':
+              title = result['name'] ?? '';
+              subtitle = result['first_air_date'] ?? '';
+              break;
+            case 'person':
+              title = result['name'] ?? '';
+              subtitle = 'Person';
+              break;
+          }
 
-                switch (result['media_type']) {
-                  case 'movie':
-                    title = result['title'];
-                    subtitle = result['release_date'];
-                    break;
-                  case 'tv':
-                    title = result['name'];
-                    subtitle = result['first_air_date'];
-                    break;
-                  case 'person':
-                    title = result['name'];
-                    subtitle = "Actor, ${result['known_for_department']}";
-                    break;
-                }
+          final imageUrl = result['poster_path'] != null
+              ? 'https://image.tmdb.org/t/p/w92${result['poster_path']}'
+              : 'https://via.placeholder.com/92x138?text=No+Image';
 
-                return ListTile(
-                  leading: result['poster_path'] != null
-                      ? CachedNetworkImage(
-                          imageUrl:
-                              'https://image.tmdb.org/t/p/w500${result['poster_path']}',
-                          width: 50,
-                          height: 75,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                              CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                              Icon(Icons.error),
-                        )
-                      : CachedNetworkImage(
-                          imageUrl:
-                              'https://via.placeholder.com/150x225?text=No+Poster',
-                          width: 50,
-                          height: 75,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                              CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                              Icon(Icons.error),
-                        ),
-                  title: Text(title),
-                  subtitle: Text(subtitle),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => result['media_type'] == 'person'
-                            ? PersonDetailsScreen(person: result)
-                            : MovieDetailsScreen(movie: result),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+          return ListTile(
+            leading: Image.network(imageUrl),
+            title: Text(title),
+            subtitle: Text(subtitle),
+          );
+        },
+      ),
     );
   }
 }
 
-class PersonDetailsScreen extends StatefulWidget {
+
+
+
+
+    class PersonDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> person;
   final List<dynamic>? knownFor;
 
@@ -1274,10 +1329,6 @@ class _PersonDetailsScreenState extends State<PersonDetailsScreen> {
       });
       return;
     }
-
-
-
-
 
     final response = await http.get(Uri.parse(
         'https://api.themoviedb.org/3/person/${widget.person['id']}/combined_credits?api_key=2e3a3937942a5214d0878f836907166a'));
@@ -1313,19 +1364,17 @@ class _PersonDetailsScreenState extends State<PersonDetailsScreen> {
                     shape: BoxShape.circle,
                     image: widget.person['profile_path'] != null
                         ? DecorationImage(
-                      fit: BoxFit.cover,
-                      image: CachedNetworkImageProvider(
-                        'https://image.tmdb.org/t/p/w500${widget.person['profile_path']}',
-                      ),
-                    )
+                            fit: BoxFit.cover,
+                            image: CachedNetworkImageProvider(
+                              'https://image.tmdb.org/t/p/w500${widget.person['profile_path']}',
+                            ),
+                          )
                         : null,
                   ),
                   child: widget.person['profile_path'] == null
                       ? Icon(Icons.person, size: 200)
                       : null,
                 ),
-
-
               SizedBox(height: 16),
               Text(
                 'Biography',
@@ -1475,7 +1524,12 @@ class _PersonDetailsScreenState extends State<PersonDetailsScreen> {
             IconButton(
               icon: Icon(Icons.list),
               onPressed: () {
-                // Code to execute when the list button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WatchlistScreen(),
+                  ),
+                );
               },
             ),
             IconButton(
@@ -1525,14 +1579,13 @@ class _WatchlistScreenState extends State<WatchlistScreen> {
     _watchlist = []; // Initialize _watchlist here
     _readWatchlist();
   }
+
   //this does not work as expected:
   Future<void> _readWatchlist() async {
     print(_watchlistRef?.path);
     DatabaseEvent? event = await _watchlistRef?.once();
     print(event?.snapshot.value);
   }
-
-
 
   String _udid = 'Unknown';
 
@@ -1563,52 +1616,54 @@ class _WatchlistScreenState extends State<WatchlistScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
+      appBar: AppBar(
         title: Text('Watchlist'),
-    ),
-    body: _watchlist.isNotEmpty
-    ? ListView.builder(
-    itemCount: _watchlist.length,
-    itemBuilder: (BuildContext context, int index) {
-    final media = _watchlist[index];
-    return ListTile(
-    leading: Container(
-    width: 50,
-      height: 75,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: CachedNetworkImageProvider(
-            media['poster_path'] != null
-                ? 'https://image.tmdb.org/t/p/w500${media['poster_path']}'
-                : 'https://via.placeholder.com/150x225?text=No+Poster',
-          ),
-          fit: BoxFit.cover,
-        ),
       ),
-    ),
-      title: Text(
-        media['title'] ?? media['name'] ?? 'No title available',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(
-        media['release_date'] ?? media['first_air_date'] ?? 'No date available',
-      ),
-      trailing: IconButton(
-        icon: Icon(Icons.delete),
-        onPressed: () {
+      body: _watchlist.isNotEmpty
+          ? ListView.builder(
+              itemCount: _watchlist.length,
+              itemBuilder: (BuildContext context, int index) {
+                final media = _watchlist[index];
+                return ListTile(
+                  leading: Container(
+                    width: 50,
+                    height: 75,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: CachedNetworkImageProvider(
+                          media['poster_path'] != null
+                              ? 'https://image.tmdb.org/t/p/w500${media['poster_path']}'
+                              : 'https://via.placeholder.com/150x225?text=No+Poster',
+                        ),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    media['title'] ?? media['name'] ?? 'No title available',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text(
+                    media['release_date'] ??
+                        media['first_air_date'] ??
+                        'No date available',
+                  ),
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () {
 // TODO: Remove the selected media from the device's watchlist
-        },
-      ),
-      onTap: () {
+                    },
+                  ),
+                  onTap: () {
 // TODO: Navigate to the details screen for the selected media
-      },
-    );
-    },
-    )
-        : Center(
-      child: Text('No movies or TV shows in your watchlist.'),
-    ),
+                  },
+                );
+              },
+            )
+          : Center(
+              child: Text('No movies or TV shows in your watchlist.'),
+            ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
